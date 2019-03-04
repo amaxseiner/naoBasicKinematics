@@ -4,9 +4,9 @@ import math
 incrementVal = .001
 l0,l1,l2=1,1.2,1.5
 theta0,theta1,theta2=45,30,80 # starting theta
-thetaOld = numpy.array([theta0,theta1])
+thetaOld = numpy.array([theta0,theta1,theta2])
 startingPoint = 0,0
-desiredPoint = 1.2,1.6 # meters
+desiredPoint = 1.2,1.6,1.1 # meters
 b=0.0 # this will need to change base on the new values when iterating
 
 if((desiredPoint[1]/desiredPoint[0]) > 1):
@@ -57,9 +57,9 @@ def matMullTransformation(listOTs):
 
 joint0 = createTransformation([l0,0,0],theta0,'z')
 joint1 = createTransformation([l1,0,0],theta1,'z')
-#joint2 = createTransformation([l2,0,0],theta2,'z')
-base = matMullTransformation([joint0,joint1])
-#print base
+joint2 = createTransformation([l2,0,0],theta2,'x')
+base = matMullTransformation([joint0,joint1,joint2])
+print base
 startingPoint = base[0,3],base[1,3]
 print startingPoint
 def createJacobian():
@@ -71,37 +71,43 @@ def createJacobian():
 
 	PPrime0 = createTransformation([l0,0,0],(theta0Prime),'z')
 	PPrime1 = createTransformation([l1,0,0],theta1,'z')
-	#PPrime2 = createTransformation([l2,0,0],theta2,'z')
+	PPrime2 = createTransformation([l2,0,0],theta2,'x')
 
 	basePrime = matMullTransformation([PPrime0,PPrime1])
-	#print("theta0Prime:")
-	#print(basePrime)
+	print("theta0Prime:")
+	print(basePrime)
 	dexdTheta0 = (basePrime[0,3] - base[0,3])/dTheta
 	deydTheta0 = (basePrime[1,3] - base[1,3])/dTheta
+	dezdTheta0 = (basePrime[2,3] - base[2,3])/dTheta
 
 	PPrime0 = createTransformation([l0,0,0],theta0,'z')
 	PPrime1 = createTransformation([l1,0,0],(theta1Prime),'z')
-	#PPrime2 = createTransformation([l2,0,0],theta2,'z')
+	PPrime2 = createTransformation([l2,0,0],theta2,'x')
 
 	basePrime = matMullTransformation([PPrime0,PPrime1])
-	#print("theta1Prime:")
-	#print(basePrime)
-	print((basePrime[0,3] - base[0,3]))
+	print("theta1Prime:")
+	print(basePrime)
 	dexdTheta1 = (basePrime[0,3] - base[0,3])/dTheta
 	deydTheta1 = (basePrime[1,3] - base[1,3])/dTheta
+	dezdTheta1 = (basePrime[2,3] - base[2,3])/dTheta
+
 
 	PPrime0 = createTransformation([l0,0,0],theta0,'z')
 	PPrime1 = createTransformation([l1,0,0],theta1,'z')
-	#PPrime2 = createTransformation([l2,0,0],(theta2Prime),'z')
+	PPrime2 = createTransformation([0,0,l1],(theta2Prime),'x')
 
-	#basePrime = matMullTransformation([PPrime0,PPrime1,PPrime2])
-	#print("theta2Prime:")
-	#print(basePrime)
-	#dexdTheta2 = (basePrime[0,3] - base[0,3])/dTheta
-	#deydTheta2 = (basePrime[1,3] - base[1,3])/dTheta
+	basePrime = matMullTransformation([PPrime0,PPrime1,PPrime2])
+	print("theta2Prime:")
+	print(basePrime)
+	dexdTheta2 = (basePrime[0,3] - base[0,3])/dTheta
+	deydTheta2 = (basePrime[1,3] - base[1,3])/dTheta
+	dezdTheta2 = (basePrime[2,3] - base[2,3])/dTheta
 
-	J = numpy.zeros((2,2))
-	J = numpy.array([[dexdTheta0,dexdTheta1],[deydTheta0,deydTheta1]])
+	#J = numpy.zeros((3,3))
+	#J[0,3] = dexdTheta0
+	J = numpy.array([[dexdTheta0,dexdTheta1,dexdTheta2],[deydTheta0,deydTheta1,deydTheta2],
+					[dezdTheta0,dezdTheta1,dezdTheta2]])
+
 
 	#J = numpy.array([[dexdTheta0,dexdTheta1]#,dexdTheta2],
 	#		[deydTheta0, deydTheta1]])#,deydTheta2]])
