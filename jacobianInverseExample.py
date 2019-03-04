@@ -9,6 +9,7 @@ startingPoint = 0,0
 desiredPoint = 1.2,1.6,1.1 # meters
 b=0.0 # this will need to change base on the new values when iterating
 
+# need to update the slope
 if((desiredPoint[1]/desiredPoint[0]) > 1):
 	newY = .001
 	newX = (newY-b)/(desiredPoint[1]/desiredPoint[0])
@@ -19,6 +20,15 @@ else:
 newPos = numpy.array([newX,newY])
 
 print "Next Position incrementally going to: ",newPos
+
+
+def find2dSlope(des,cur):
+	slope = (des[1]-cur[1])/(des[0]-cur[0])
+	return slope
+
+def find3dSlope(des,cur):
+	xDiff = math.sqrt(math.pow(des[0]-cur[0],2) + math.pow(des[1]-cur[0],2))
+
 
 def createTransformation(lengths,theta,axis):
 	# different rotation matrices for each axis
@@ -127,6 +137,7 @@ for a in range(2000):
 	else:
 		newX = .001
 		newY = (slope)*newX + b
+
 	print newX, newY
 	newPos[0] = newX# - newPos[0]
 	newPos[1] = newY# - newPos[1]
