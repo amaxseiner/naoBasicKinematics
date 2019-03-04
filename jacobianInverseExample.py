@@ -14,7 +14,7 @@ l0,l1,l2=1,1.2,1.5
 theta0,theta1,theta2=45,30,40 # starting theta
 thetaOld = numpy.array([theta0,theta1,theta2])
 startingPoint = 0,0,0
-desiredPoint = 1.7,1.6,1.2 # meters
+desiredPoint = 1.4,1.2,1.2 # meters
 b=0.0 # just place holder
 
 def find2dSlope(des,cur):
@@ -33,7 +33,6 @@ def find3dDistance(des,cur):
 	return res
 
 #print(find3dSlope(desiredPoint,startingPoint))
-
 
 def createTransformation(lengths,theta,axis):
 	# different rotation matrices for each axis
@@ -139,11 +138,12 @@ J = createJacobian()
 Jinverse = numpy.linalg.inv(J)
 #print Jinverse
 newPos = startingPoint
-for a in range(2000):
+for a in range(200):
 	diffY,diffX = (desiredPoint[1]-newPos[1]),(desiredPoint[0]-newPos[0])
 	slope = abs(find2dSlope(desiredPoint,newPos))#(desiredPoint[1]-newPos[1])/(desiredPoint[0]-newPos[0])
 	diffZ = desiredPoint[2]-newPos[2]
-	if(max([diffX,diffY,diffZ]) == diffY):
+	print "2dslope",slope
+	if(max([abs(diffX),abs(diffY),abs(diffZ)]) == abs(diffY)):
 		if(diffY >0):
 			newY = .001
 		else:
@@ -152,13 +152,14 @@ for a in range(2000):
 			newX = (newY-b)/(slope)
 		else:
 			newX = -(newY-b)/(slope)
+		print diffX
 		distTemp = math.sqrt(math.pow(newX,2)+math.pow(newY,2))
 		if(diffZ>0):
 			newZ = math.sqrt(math.pow(distTemp,2) + math.pow(diffZ,2))
 		else:
 			newZ = -math.sqrt(math.pow(distTemp,2) + math.pow(diffZ,2))
 
-	elif(max([diffX,diffY,diffZ]) == diffX):
+	elif(max([abs(diffX),abs(diffY),abs(diffZ)]) == abs(diffX)):
 		if(diffX >0):
 			newX = .001
 		else:
@@ -173,7 +174,6 @@ for a in range(2000):
 		else:
 			newZ = -math.sqrt(math.pow(distTemp,2) + math.pow(diffZ,2))
 	else:
-		print("yeet")
 		if(diffZ > 0):
 			newZ = .001
 		else:
