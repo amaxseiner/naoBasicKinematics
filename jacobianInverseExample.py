@@ -1,45 +1,33 @@
 import numpy
 import math
 
-incrementVal = .001
-l0,l1,l2=1,1.2,1.5
-theta0,theta1,theta2=45,30,80 # starting theta
+l0,l1,l2 = 1.5,1.2,1.5
+theta0,theta1,theta2=0,10,80 # starting theta
 thetaOld = numpy.array([theta0,theta1])
 startingPoint = 0,0
-desiredPoint = 1.2,1.6 # meters
+desiredPoint = 1.3,1.8 # meters
 b=0.0 # this will need to change base on the new values when iterating
-
-if((desiredPoint[1]/desiredPoint[0]) > 1):
-	newY = .001
-	newX = (newY-b)/(desiredPoint[1]/desiredPoint[0])
-else:
-	newX = .001
-	newY = (desiredPoint[1]/desiredPoint[0])*newX + b
-
-newPos = numpy.array([newX,newY])
-
-print "Next Position incrementally going to: ",newPos
 
 def createTransformation(lengths,theta,axis):
 	# different rotation matrices for each axis
 	if(axis=='z'):
-       		Rtemp = numpy.array([[math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0,0],
-                	[math.sin(math.radians(theta)),math.cos(math.radians(theta)),0,0],
-                	[0,0,1,0],
-                	[0,0,0,1]])
-        	Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
-        elif(axis=='y'):
+		Rtemp = numpy.array([[math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0,0],
+		[math.sin(math.radians(theta)),math.cos(math.radians(theta)),0,0],
+		[0,0,1,0],
+		[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+	elif(axis=='y'):
 		Rtemp = numpy.array([[math.cos(math.radians(theta)),0,math.sin(math.radians(theta)),0],
-                        [0,1,0,0],
-						[-math.sin(math.radians(theta)),0,math.cos(math.radians(theta)),0],
-                        [0,0,0,1]])
-                Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+		[0,1,0,0],
+		[-math.sin(math.radians(theta)),0,math.cos(math.radians(theta)),0],
+		[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
 	elif(axis=='x'):
 		Rtemp = numpy.array([[1,0,0,0],
-						[0,math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0],
-                        [0,math.sin(math.radians(theta)),math.cos(math.radians(theta)),0],
-                        [0,0,0,1]])
-                Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+		[0,math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0],
+		[0,math.sin(math.radians(theta)),math.cos(math.radians(theta)),0],
+		[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
 
 	return numpy.matmul(Rtemp,Ptemp)
 
@@ -59,7 +47,7 @@ joint0 = createTransformation([l0,0,0],theta0,'z')
 joint1 = createTransformation([l1,0,0],theta1,'z')
 #joint2 = createTransformation([l2,0,0],theta2,'z')
 base = matMullTransformation([joint0,joint1])
-#print base
+print base
 startingPoint = base[0,3],base[1,3]
 print startingPoint
 def createJacobian():
@@ -86,7 +74,6 @@ def createJacobian():
 	basePrime = matMullTransformation([PPrime0,PPrime1])
 	#print("theta1Prime:")
 	#print(basePrime)
-	print((basePrime[0,3] - base[0,3]))
 	dexdTheta1 = (basePrime[0,3] - base[0,3])/dTheta
 	deydTheta1 = (basePrime[1,3] - base[1,3])/dTheta
 
@@ -106,29 +93,50 @@ def createJacobian():
 	#J = numpy.array([[dexdTheta0,dexdTheta1]#,dexdTheta2],
 	#		[deydTheta0, deydTheta1]])#,deydTheta2]])
 
-	print(J)
+	#print(J)
 	return J
 
 J = createJacobian()
 Jinverse = numpy.linalg.inv(J)
-print Jinverse
-#print(newPos)
-for a in range(2000):
-	slope = (desiredPoint[1]-newPos[1])/(desiredPoint[0]-newPos[0])
-	if(slope > 1):
-		newY = .001
-		newX = (newY-b)/(slope)
+#print Jinverse
+newPos = numpy.zeros(2)
+newPos[0] = startingPoint[0]
+newPos[1] = startingPoint[1]
+
+print(newPos)
+for a in range(4000):
+	diffY,diffX = (desiredPoint[1]-newPos[1]),(desiredPoint[0]-newPos[0])
+	slope=abs(diffY/diffX)
+	print "slope",slope
+
+	if(diffY > diffX):
+		if(diffY >0):
+			newY = .001
+		else:
+			newY = -.001
+		if(diffX >0):
+			newX = (newY-b)/(slope)
+		else:
+			newX = -(newY-b)/(slope)
+
 	else:
-		newX = .001
-		newY = (slope)*newX + b
-	print newX, newY
+		if(diffX >0):
+			newX = .001
+		else:
+			newX = -.001
+		if(diffY > 0):
+			newY = (slope)*newX + b
+		else:
+			newY = -(slope)*newX + b
+
+	#print newX, newY
 	newPos[0] = newX# - newPos[0]
 	newPos[1] = newY# - newPos[1]
 	print newPos
 	dThetaJ = numpy.matmul(Jinverse,newPos)
-	print "change in theta", dThetaJ
+	#print "change in theta", dThetaJ
 	thetaNew = thetaOld + dThetaJ
-	print thetaNew
+	#print thetaNew
 	joint0 = createTransformation([l0,0,0],thetaNew[0],'z')
 	joint1 = createTransformation([l1,0,0],thetaNew[1],'z')
 	#joint2 = createTransformation([l2,0,0],theta2,'z')
@@ -140,6 +148,7 @@ for a in range(2000):
 	print "new points",newP
 	if(math.sqrt(math.pow(desiredPoint[0]-newP[0],2)+math.pow(desiredPoint[1]-newP[1],2))<.01):
 		print "found it at: ",a
+		print(thetaNew)
 		break
 	newPos = newP
 	thetaOld = thetaNew
