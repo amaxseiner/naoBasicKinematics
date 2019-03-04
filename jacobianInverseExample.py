@@ -5,9 +5,9 @@ incrementVal = .001
 l0,l1,l2=1,1.2,1.5
 theta0,theta1,theta2=45,30,80 # starting theta
 thetaOld = numpy.array([theta0,theta1,theta2])
-startingPoint = 0,0
+startingPoint = 0,0,0
 desiredPoint = 1.2,1.6,1.1 # meters
-b=0.0 # this will need to change base on the new values when iterating
+b=0.0 # just place holder
 
 # need to update the slope
 if((desiredPoint[1]/desiredPoint[0]) > 1):
@@ -17,10 +17,10 @@ else:
 	newX = .001
 	newY = (desiredPoint[1]/desiredPoint[0])*newX + b
 
-newPos = numpy.array([newX,newY])
+newPos = numpy.array([newX,newY,newZ])
+
 
 print "Next Position incrementally going to: ",newPos
-
 
 def find2dSlope(des,cur):
 	slope = (des[1]-cur[1])/(des[0]-cur[0])
@@ -28,28 +28,32 @@ def find2dSlope(des,cur):
 
 def find3dSlope(des,cur):
 	xDiff = math.sqrt(math.pow(des[0]-cur[0],2) + math.pow(des[1]-cur[0],2))
+	yDiff = des[2]-cur[2]
+	return math.sqrt(math.pow(xDiff,2)+math.pow(yDiff,2))
+
+#print(find3dSlope(desiredPoint,startingPoint))
 
 
 def createTransformation(lengths,theta,axis):
 	# different rotation matrices for each axis
 	if(axis=='z'):
-       		Rtemp = numpy.array([[math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0,0],
-                	[math.sin(math.radians(theta)),math.cos(math.radians(theta)),0,0],
-                	[0,0,1,0],
-                	[0,0,0,1]])
-        	Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
-        elif(axis=='y'):
+		Rtemp = numpy.array([[math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0,0],
+							[math.sin(math.radians(theta)),math.cos(math.radians(theta)),0,0],
+							[0,0,1,0],
+							[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+	elif(axis=='y'):
 		Rtemp = numpy.array([[math.cos(math.radians(theta)),0,math.sin(math.radians(theta)),0],
-                        [0,1,0,0],
-						[-math.sin(math.radians(theta)),0,math.cos(math.radians(theta)),0],
-                        [0,0,0,1]])
-                Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+							[0,1,0,0],
+							[-math.sin(math.radians(theta)),0,math.cos(math.radians(theta)),0],
+							[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
 	elif(axis=='x'):
 		Rtemp = numpy.array([[1,0,0,0],
-						[0,math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0],
-                        [0,math.sin(math.radians(theta)),math.cos(math.radians(theta)),0],
-                        [0,0,0,1]])
-                Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
+							[0,math.cos(math.radians(theta)),-math.sin(math.radians(theta)),0],
+							[0,math.sin(math.radians(theta)),math.cos(math.radians(theta)),0],
+							[0,0,0,1]])
+		Ptemp = numpy.array([[1,0,0,lengths[0]],[0,1,0,lengths[1]],[0,0,1,lengths[2]],[0,0,0,1]])
 
 	return numpy.matmul(Rtemp,Ptemp)
 
@@ -115,7 +119,8 @@ def createJacobian():
 
 	#J = numpy.zeros((3,3))
 	#J[0,3] = dexdTheta0
-	J = numpy.array([[dexdTheta0,dexdTheta1,dexdTheta2],[deydTheta0,deydTheta1,deydTheta2],
+	J = numpy.array([[dexdTheta0,dexdTheta1,dexdTheta2],
+					[deydTheta0,deydTheta1,deydTheta2],
 					[dezdTheta0,dezdTheta1,dezdTheta2]])
 
 
@@ -130,17 +135,27 @@ Jinverse = numpy.linalg.inv(J)
 print Jinverse
 #print(newPos)
 for a in range(2000):
-	slope = (desiredPoint[1]-newPos[1])/(desiredPoint[0]-newPos[0])
+	slope = find2dSlope(desiredPoint,newPos)#(desiredPoint[1]-newPos[1])/(desiredPoint[0]-newPos[0])
+
 	if(slope > 1):
 		newY = .001
 		newX = (newY-b)/(slope)
-	else:
+	elif(slope <= 1 and slope >0):
 		newX = .001
 		newY = (slope)*newX + b
+	elif(slope < 0 and slope > -1):
+		newX = -.001
+		newY = (slope)*newX + b
+	elif(slope < -1):
+		newY = -.001
+		newX = (newY-b)/(slope)
+
+	# need to figure out newZ
 
 	print newX, newY
-	newPos[0] = newX# - newPos[0]
-	newPos[1] = newY# - newPos[1]
+	newPos[0] = newX # - newPos[0]
+	newPos[1] = newY # - newPos[1]
+	newPos[2] = newZ
 	print newPos
 	dThetaJ = numpy.matmul(Jinverse,newPos)
 	print "change in theta", dThetaJ
