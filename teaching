@@ -1,0 +1,14 @@
+Talk about udp communication using udp in c and python2
+1. On RPI use netcat with python udp_send local, 127.0.0.1. nc -kluv 127.0.0.1 5005
+Talk about why netcat can't receive multiple messages.
+It locks onto its source. So if we made a loop it would send multiple
+show for loop
+2. python udp_receive <= udp_send talk about binding ports
+3. Move to C
+4. udp-sender.c -> nc -lu 127.0.0.1 5005
+5. udp-sender.c -> udp-receiver.c , do make clean the make on receiver
+6. run python send on computer and udp-receiver on rpi. do ifconfig to see ip addr
+7. Explain how it works both ways
+8. Move to the structs branch and explain packed types with aligment
+9. run udp-sender->udp-receiver
+
