@@ -1,4 +1,4 @@
-# -*- encoding: UTF-8 -*- 
+# -*- encoding: UTF-8 -*-
 
 ''' PoseZero: Set all the motors of the body to zero. '''
 
@@ -80,7 +80,7 @@ def main(robotIP):
     pNames = "RArm"
 
     # Get the Number of Joints
-    
+
     #print motionProxy.getBodyNames(pNames)
     batPerc = memory_service.getData("Device/SubDeviceList/Battery/Charge/Sensor/Value")
     print("battery%",batPerc)
@@ -94,7 +94,7 @@ def main(robotIP):
 	if(count > 10):
         	batPerc = memory_service.getData("Device/SubDeviceList/Battery/Charge/Sensor/Value")
         	print("battery%",batPerc)
-		counts = 0 
+		count = 0 
 		csvTiming.write(str(time.time()-startingTime)+","+str(batPerc) + "\n")
 
     csvTiming.write(str(time.time()-startingTime)+","+str(batPerc)+"\n")
