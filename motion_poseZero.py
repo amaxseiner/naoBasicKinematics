@@ -45,10 +45,10 @@ def main(robotIP):
     numBodies = len(motionProxy.getBodyNames(pNames))
     print motionProxy.getBodyNames(pNames)
     pTargetAngles = [0.0] * numBodies
-    pTargetAngles[0] = 45.0
-    pTargetAngles[1] = 0
-    pTargetAngles[2] = 0
-    pTargetAngles[3] = 0
+    pTargetAngles[0] = 80.0
+    pTargetAngles[1] = -9
+    pTargetAngles[2] = 60
+    pTargetAngles[3] = 60
     resultingT = forwardKinematics.createTransforms(pTargetAngles,pNames)
 
     # We set the fraction of max speed
@@ -56,6 +56,26 @@ def main(robotIP):
     pTargetAnglesRad = [0.0] * numBodies
     for a in range(len(pTargetAngles)):
 	pTargetAnglesRad[a] = math.radians(pTargetAngles[a])
+
+    motionProxy.setAngles(pNames, pTargetAnglesRad, pMaxSpeedFraction)
+    encoderAngles = motionProxy.getAngles(pNames,True)
+    print(encoderAngles)
+
+
+    time.sleep(0.2)
+    pTargetAngles = [0.0] * numBodies
+    pTargetAngles[0] = 80.0
+    pTargetAngles[1] = -9
+    pTargetAngles[2] = 60
+    pTargetAngles[3] = 10
+    resultingT = forwardKinematics.createTransforms(pTargetAngles,pNames)
+
+    # We set the fraction of max speed
+    pMaxSpeedFraction = 0.3
+    pTargetAnglesRad = [0.0] * numBodies
+    for a in range(len(pTargetAngles)):
+	pTargetAnglesRad[a] = math.radians(pTargetAngles[a])
+
 
     print "Angle values assigned in radians",pTargetAnglesRad
 
