@@ -3,3 +3,7 @@ on/off battery test for tapping and conducting ie moving the arms
 
 
 about 120 minutes of battery life from tapping. Got 30% battery drop in 42 minutes.
+
+using 2 arm motion, drains at about 1% per minute... dropped 95% to 83% in 14 minutes.
+
+getting the latency of the commands
