@@ -2,12 +2,11 @@ import numpy
 import math
 #import mds_ik
 
-UpperArmLength  =105.0
+UpperArmLength  =288.483
 ElbowOffsetY    =15.0
-LowerArmLength  =55.95
-HandOffsetX 	=57.75
-ShoulderOffsetY =98.0
-HandOffsetZ     =12.31
+LowerArmLength  =259.747
+ShoulderOffsetY =185.408
+HandOffsetZ     =24
 
 # lengths is defined as an array [x,y,z] lengths for the translation matrix
 def createTransformation(lengths,theta,axis):
@@ -55,14 +54,14 @@ def createTransforms(targetAngles,body):
 		#RightShoulderRoll
 		TRSR = createTransformation([0,0,0],targetAngles[1], axis='x')
 		#RElbowYaw
-		TREY = createTransformation([0,0,UpperArmLength],targetAngles[2], axis='z')
-		#RElbowRoll
-		TRER = createTransformation([0,0,0],targetAngles[3],axis='x')
+		TREY = createTransformation([0,0,-UpperArmLength],targetAngles[2], axis='z')
+		#RElbowPitch
+		TREP = createTransformation([0,0,-LowerArmLength],targetAngles[3],axis='y')
 		#RWristYaw
-		TRWY = createTransformation([0,0,LowerArmLength],targetAngles[4],axis='z')
+		TRWY = createTransformation([0,0,0],targetAngles[4],axis='z')
 		#Transform from writst to hand(EndEffector)
-		TWH = createTransformation([0.0,0,HandOffsetX],0,axis='x')
-		res = matMullTransformation([TRSP,TRSR,TREY,TRER,TRWY,TWH])
+		TRWR = createTransformation([0.0,0,-HandOffsetZ],targetAngles[5],axis='x')
+		res = matMullTransformation([TRSP,TRSR,TREY,TREP,TRWY,TRWR])
 		#print(TWH)
 		#print("End Effector X:",res[0,3])# x
 		#print("End Effector Y:",(res[1,3]))# y
@@ -76,19 +75,19 @@ def createTransforms(targetAngles,body):
 		#LeftShoulderRoll
 		TLSR = createTransformation([0,0,0],targetAngles[1], axis='x')
 		#LElbowYaw
-		TLEY = createTransformation([0.0,0.0,UpperArmLength],targetAngles[2], axis='x')
-		#LElbowRoll
-		TLER = createTransformation([0,0,0],targetAngles[3],axis='x')
+		TLEY = createTransformation([0,0,-UpperArmLength],targetAngles[2], axis='z')
+		#LElbowPitch
+		TLEP = createTransformation([0,0,-LowerArmLength],targetAngles[3],axis='y')
 		#LWristYaw
-		TLWY = createTransformation([0.0,0,LowerArmLength],targetAngles[4],axis='z')
+		TLWY = createTransformation([0.0,0,0],targetAngles[4],axis='z')
 		#Transform from writst to hand(EndEffector)
-		TWH = createTransformation([0.0,0,HandOffsetX],0,'x')
+		TLWR = createTransformation([0.0,0,-HandOffsetZ],targetAngles[5],axis='x')
 
-		res = matMullTransformation([TLSP,TLSR,TLEY,TLER,TLWY,TWH])
+		res = matMullTransformation([TLSP,TLSR,TLEY,TLEP,TLWY,TLWR])
 		#print(res)
 		#print("End Effector X:",res[0,3])# x
 		#print("End Effector Y:",(res[1,3]))# y
 		#print("End Effector Z:",res[2,3])# z
 		return res
 
-#print(createTransforms([90,0,0,0,0,0],"RArm"))
+print(createTransforms([10,10,10,10,10,10],"LArm"))
