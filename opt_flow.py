@@ -38,7 +38,7 @@ def main():
 
 
     #cam = video.create_capture("/home/alex/Downloads/tap-test-120fps-da-2019-04-08_193122_500.avi")
-    cam = video.create_capture("/home/alex/Downloads/goodData/2019-07-02_191322_883.avi")
+    cam = video.create_capture("/home/maxseiner/Downloads/goodData/2019-07-02_191322_883.avi")
     ret, prev = cam.read()
 
     prev1 = prev[150:400,460:640]
@@ -75,10 +75,10 @@ def main():
 
 
         #cv.imshow('Dan', draw_flow(gray1, flow1))
-        if(count > 715):
-            print("frame: ",count)
-            cv.imshow('Dan', draw_flow(gray1, flow1))
-            cv.waitKey(0)
+        #if(count > 715):
+        #    print("frame: ",count)
+        #    cv.imshow('Dan', draw_flow(gray1, flow1))
+        #    cv.waitKey(0)
         count+=1
         #else:
         #cv.waitKey(5)
@@ -86,10 +86,17 @@ def main():
         #ch = cv.waitKey(5)
         #cv.imshow('AL',)
     tempMag,tempPhase = [],[]
-    for a in (magTot):
-        tempMag.append(a[227,148])
-    for b in phaseTot:
-        tempPhase.append(b[227,148])
+    for count,a in enumerate(magTot):
+	tempMag.append(a[227,148])
+	if(a[227,148] < 0.3):
+		tempPhase.append(0)
+	else:
+		tempPhase.append(phaseTot[count][227,148])
+    #for a in (magTot):
+    #    tempMag.append(a[227,148])
+    #for b in phaseTot:
+    #    tempPhase.append(b[227,148])
+    
     plt.figure(1)
     plt.plot(tempMag)
     plt.title('Magnitude')
@@ -108,7 +115,6 @@ def main():
     #plt.legend(handles=[line2],loc=4)
     plt.show()
 
-    print('Done')
 
 if __name__ == '__main__':
     print(__doc__)
