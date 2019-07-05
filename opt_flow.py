@@ -19,7 +19,7 @@ def draw_flow(img, flow, step=16):
     cv.polylines(vis, lines, 0, (0, 255, 0))
     for (x1, y1), (_x2, _y2) in lines:
         cv.circle(vis, (x1, y1), 1, (0, 255, 0), -1)
-    cv.circle(vis, (148, 227), 3, (255, 0, 0), -1)
+    cv.circle(vis, (130, 130), 3, (255, 0, 0), -1)
     return vis
 
 def calc_mag_phase(flow):
@@ -37,8 +37,8 @@ def main():
     import sys
 
 
-    #cam = video.create_capture("/home/alex/Downloads/tap-test-120fps-da-2019-04-08_193122_500.avi")
-    cam = video.create_capture("/home/maxseiner/Downloads/goodData/2019-07-02_191322_883.avi")
+    cam = video.create_capture("/home/alex/Downloads/tap-test-120fps-da-2019-04-08_193122_500.avi")
+    #cam = video.create_capture("/home/alex/Downloads/goodData/2019-07-02_191322_883.avi")
     ret, prev = cam.read()
 
     prev1 = prev[150:400,460:640]
@@ -53,9 +53,9 @@ def main():
     count = 0
     while True:
         ret, img = cam.read()
-        #sec1 = img[442,155:630,350]
+        #sec1 = img[442:630,155:350]
         sec1 = img[150:400,460:640]
-        #sec2 = img[0,137:185,330]
+        #sec2 = img[0:185,137:330]
         sec2 = img[137:330,0:185]
         gray1 = cv.cvtColor(sec1, cv.COLOR_BGR2GRAY)
         gray2 = cv.cvtColor(sec2, cv.COLOR_BGR2GRAY)
@@ -74,24 +74,24 @@ def main():
             break
 
 
-        #cv.imshow('Dan', draw_flow(gray1, flow1))
-        #if(count > 715):
+        #cv.mshow('Dan', draw_flow(gray1, flow1))
+        #if(count > 268):
         #    print("frame: ",count)
         #    cv.imshow('Dan', draw_flow(gray1, flow1))
         #    cv.waitKey(0)
         count+=1
         #else:
-        #cv.waitKey(5)
+        cv.waitKey(5)
         #cv.imshow('AL', draw_flow(gray2, flow2))
         #ch = cv.waitKey(5)
         #cv.imshow('AL',)
     tempMag,tempPhase = [],[]
     for count,a in enumerate(magTot):
-	tempMag.append(a[227,148])
-	if(a[227,148] < 0.3):
-		tempPhase.append(0)
-	else:
-		tempPhase.append(phaseTot[count][227,148])
+	tempMag.append(a[130,130])
+	#if(a[227,148] < 0.3):
+	#	tempPhase.append(0)
+	#else:
+	tempPhase.append(phaseTot[count][130,130])
     #for a in (magTot):
     #    tempMag.append(a[227,148])
     #for b in phaseTot:
@@ -107,11 +107,11 @@ def main():
     plt.title('Phase')
     plt.xlabel('Time(frames)')
     plt.figure(3)
-    line1, = plt.plot(tempMag,label="Magnitude")
-    line2, = plt.plot(tempPhase,label="Phase(radians)")
-    plt.title('Phase and Magnitude of Nao')
+    line1, = plt.plot(tempMag[270:300],label="Magnitude")
+    line2, = plt.plot(tempPhase[270:300],label="Phase(radians)")
+    plt.title('Phase and Magnitude of Human')
     plt.xlabel('Time(frames)')
-    plt.legend(handles=[line1,line2],loc=4)
+    plt.legend(handles=[line1,line2],loc=2)
     #plt.legend(handles=[line2],loc=4)
     plt.show()
 
